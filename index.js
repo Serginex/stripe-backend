@@ -6,27 +6,31 @@ app.use(bodyParser.json());
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-// Endpoint para criar Checkout Session
+// ✅ Endpoint GET de teste para confirmar servidor online
+app.get('/', (req, res) => {
+  res.send('Servidor online');
+});
+
+// ✅ Endpoint para criar Checkout Session
 app.post('/create-checkout-session', async (req, res) => {
   const { email, priceId } = req.body;
 
   try {
     const session = await stripe.checkout.sessions.create({
-  payment_method_types: ['card', 'boleto', 'pix'],
-  line_items: [
-    {
-      price: 'price_1Reyg8EYgElCatRxeizbSN2a', // <-- seu novo price ID aqui
-      quantity: 1,
-    },
-  ],
-  mode: 'payment',
-  success_url: 'https://www.consulteseufuturo.com/sucesso',
-  cancel_url: 'https://www.consulteseufuturo.com/cancelado',
-  metadata: {
-    email: email,
-  },
-});
-
+      payment_method_types: ['card', 'boleto', 'pix'],
+      line_items: [
+        {
+          price: 'price_1Reyg8EYgElCatRxeizbSN2a', // <-- seu priceId fixo ou utilize priceId dinamicamente se preferir
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: 'https://www.consulteseufuturo.com/sucesso',
+      cancel_url: 'https://www.consulteseufuturo.com/cancelado',
+      metadata: {
+        email: email,
+      },
+    });
 
     res.json({ url: session.url });
   } catch (error) {
@@ -35,16 +39,15 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 });
 
-// Endpoint Webhook Stripe
+// ✅ Endpoint Webhook Stripe
 app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (req, res) => {
   const sig = req.headers['stripe-signature'];
-
   let event;
 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err) {
-    console.log(`Webhook signature verification failed.`, err.message);
+    console.log('Webhook signature verification failed.', err.message);
     return res.sendStatus(400);
   }
 
@@ -62,5 +65,6 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (req, res) =>
   res.status(200).send();
 });
 
+// ✅ Inicialização do servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
