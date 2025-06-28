@@ -22,7 +22,7 @@ app.post('/create-checkout-session', async (req, res) => {
       payment_method_types: ['card', 'boleto', 'pix'],
       line_items: [
         {
-          price: 'price_1Reyg8EYgElCatRxeizbSN2a',
+          price: 'price_1Rf7OwEYgEICatRxBTqnJdR9',
           quantity: 1,
         },
       ],
