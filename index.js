@@ -15,21 +15,21 @@ app.get('/', (req, res) => {
 app.post('/create-checkout-session', async (req, res) => {
   const { email, priceId } = req.body;
 
+  console.log("Usando priceId fixo: price_1Reyg8EYgElCatRxeizbSN2a");
+
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card', 'boleto', 'pix'],
       line_items: [
         {
-          price: 'price_1Reyg8EYgElCatRxeizbSN2a', // <-- seu priceId fixo ou utilize priceId dinamicamente se preferir
+          price: 'price_1Reyg8EYgElCatRxeizbSN2a',
           quantity: 1,
         },
       ],
       mode: 'payment',
       success_url: 'https://www.consulteseufuturo.com/sucesso',
       cancel_url: 'https://www.consulteseufuturo.com/cancelado',
-      metadata: {
-        email: email,
-      },
+      metadata: { email },
     });
 
     res.json({ url: session.url });
