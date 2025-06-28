@@ -20,7 +20,7 @@ app.post('/create-checkout-session', async (req, res) => {
       payment_method_types: ['card', 'boleto', 'pix'],
       line_items: [
         {
-          price: 'price_1Reyg8EYgElCatRxeizbSN2a', // <-- seu priceId fixo ou utilize priceId dinamicamente se preferir
+          price: priceId, // <-- seu priceId fixo ou utilize priceId dinamicamente se preferir
           quantity: 1,
         },
       ],
