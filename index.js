@@ -12,20 +12,21 @@ app.post('/create-checkout-session', async (req, res) => {
 
   try {
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card', 'boleto', 'pix'],
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-      success_url: 'https://www.consulteseufuturo.com/sucesso',
-      cancel_url: 'https://www.consulteseufuturo.com/cancelado',
-      metadata: {
-        email: email,
-      },
-    });
+  payment_method_types: ['card', 'boleto', 'pix'],
+  line_items: [
+    {
+      price: 'price_1Reyg8EYgElCatRxeizbSN2a', // <-- seu novo price ID aqui
+      quantity: 1,
+    },
+  ],
+  mode: 'payment',
+  success_url: 'https://www.consulteseufuturo.com/sucesso',
+  cancel_url: 'https://www.consulteseufuturo.com/cancelado',
+  metadata: {
+    email: email,
+  },
+});
+
 
     res.json({ url: session.url });
   } catch (error) {
