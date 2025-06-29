@@ -1,10 +1,11 @@
-const cors = require('cors');
-const express = require('express');
-const app = express();
-const stripe = require('stripe')(process.env.SECRET_KEY_STRIPE);
-const bodyParser = require('body-parser');
-const fetch = require('node-fetch-commonjs'); // ✅ usando versão CommonJS do fetch
+import cors from 'cors';
+import express from 'express';
+import fetch from 'node-fetch';
+import Stripe from 'stripe';
+import bodyParser from 'body-parser';
 
+const app = express();
+const stripe = new Stripe(process.env.SECRET_KEY_STRIPE);
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 // Middleware para JSON em todas as rotas, exceto webhook
@@ -17,12 +18,12 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  origin: 'https://www.consulteseufuturo.com.br', // seu domínio Wix aqui
+  origin: 'https://www.consulteseufuturo.com.br',
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
 }));
 
-// ✅ Endpoint GET de teste para confirmar servidor online
+// ✅ Endpoint GET de teste
 app.get('/', (req, res) => {
   res.send('Servidor online');
 });
@@ -30,7 +31,6 @@ app.get('/', (req, res) => {
 // ✅ Endpoint para criar Checkout Session
 app.post('/create-checkout-session', async (req, res) => {
   const { email } = req.body;
-
   console.log("Usando priceId fixo: price_1Rf7OwEYgEICatRxBTqnJdR9");
 
   try {
