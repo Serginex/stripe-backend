@@ -2,6 +2,11 @@ const express = require('express');
 const app = express();
 const stripe = require('stripe')(process.env.SECRET_KEY_STRIPE);
 const bodyParser = require('body-parser');
+app.use(cors({
+  origin: 'https://www.consulteseufuturo.com.br', // seu domínio Wix aqui
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
+}));
 app.use(bodyParser.json());
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
