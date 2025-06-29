@@ -33,8 +33,8 @@ app.post('/create-checkout-session', async (req, res) => {
         },
       ],
       mode: 'payment',
-      success_url: 'https://www.consulteseufuturo.com/sucesso',
-      cancel_url: 'https://www.consulteseufuturo.com/cancelado',
+      success_url: 'https://www.consulteseufuturo.com.br/sucesso',
+      cancel_url: 'https://www.consulteseufuturo.com.br/cancelado',
       metadata: { email },
     });
 
@@ -65,7 +65,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (req, res) =>
     console.log(`Pagamento confirmado para ${email}, valor: ${amountTotal}`);
 
     // ✅ Fetch para Wix para somar créditos
-    fetch("https://www.consulteseufuturo.com/_functions/somarCreditoStripe", {
+    fetch("https://www.consulteseufuturo.com.br/_functions/somarCreditoStripe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
