@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const stripe = require('stripe')(process.env.SECRET_KEY_STRIPE);
 const bodyParser = require('body-parser');
-const fetch = require('node-fetch'); // <-- ADICIONE ESTA LINHA
+import fetch from 'node-fetch';
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
