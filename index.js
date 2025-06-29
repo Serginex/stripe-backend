@@ -3,13 +3,12 @@ const express = require('express');
 const app = express();
 const stripe = require('stripe')(process.env.SECRET_KEY_STRIPE);
 const bodyParser = require('body-parser');
-import fetch from 'node-fetch';
+const fetch = require('node-fetch-commonjs'); // ✅ usando versão CommonJS do fetch
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 // Middleware para JSON em todas as rotas, exceto webhook
 app.use((req, res, next) => {
-  // Para o webhook, não parseia JSON aqui
   if (req.originalUrl === '/webhook') {
     next();
   } else {
@@ -30,7 +29,7 @@ app.get('/', (req, res) => {
 
 // ✅ Endpoint para criar Checkout Session
 app.post('/create-checkout-session', async (req, res) => {
-  const { email, priceId } = req.body;
+  const { email } = req.body;
 
   console.log("Usando priceId fixo: price_1Rf7OwEYgEICatRxBTqnJdR9");
 
@@ -56,7 +55,7 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 });
 
-// ✅ Endpoint Webhook Stripe (usa bodyParser.raw só aqui!)
+// ✅ Endpoint Webhook Stripe
 app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
