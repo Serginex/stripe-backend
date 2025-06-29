@@ -3,14 +3,25 @@ const express = require('express');
 const app = express();
 const stripe = require('stripe')(process.env.SECRET_KEY_STRIPE);
 const bodyParser = require('body-parser');
+const fetch = require('node-fetch'); // <-- ADICIONE ESTA LINHA
+
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+// Middleware para JSON em todas as rotas, exceto webhook
+app.use((req, res, next) => {
+  // Para o webhook, não parseia JSON aqui
+  if (req.originalUrl === '/webhook') {
+    next();
+  } else {
+    bodyParser.json()(req, res, next);
+  }
+});
+
 app.use(cors({
   origin: 'https://www.consulteseufuturo.com.br', // seu domínio Wix aqui
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
 }));
-app.use(bodyParser.json());
-
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 // ✅ Endpoint GET de teste para confirmar servidor online
 app.get('/', (req, res) => {
@@ -33,8 +44,8 @@ app.post('/create-checkout-session', async (req, res) => {
         },
       ],
       mode: 'payment',
-      success_url: 'https://www.consulteseufuturo.com/sucesso',
-      cancel_url: 'https://www.consulteseufuturo.com/cancelado',
+      success_url: 'https://www.consulteseufuturo.com.br/sucesso',
+      cancel_url: 'https://www.consulteseufuturo.com.br/cancelado',
       metadata: { email },
     });
 
@@ -45,7 +56,7 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 });
 
-// ✅ Endpoint Webhook Stripe
+// ✅ Endpoint Webhook Stripe (usa bodyParser.raw só aqui!)
 app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
@@ -65,7 +76,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (req, res) =>
     console.log(`Pagamento confirmado para ${email}, valor: ${amountTotal}`);
 
     // ✅ Fetch para Wix para somar créditos
-    fetch("https://www.consulteseufuturo.com/_functions/somarCreditoStripe", {
+    fetch("https://www.consulteseufuturo.com.br/_functions/somarCreditoStripe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
