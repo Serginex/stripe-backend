@@ -28,17 +28,23 @@ app.get('/', (req, res) => {
   res.send('Servidor online');
 });
 
-// ✅ Endpoint para criar Checkout Session
+// ✅ Endpoint para criar Checkout Session dinâmico conforme priceId recebido do frontend
 app.post('/create-checkout-session', async (req, res) => {
-  const { email } = req.body;
-  console.log("Usando priceId fixo: price_1Rf7OwEYgEICatRxBTqnJdR9");
+  const { email, priceId } = req.body;
+
+  if (!priceId) {
+    console.log("❌ Nenhum priceId recebido do frontend.");
+    return res.status(400).send("priceId obrigatório.");
+  }
+
+  console.log(`➡️ Criando sessão Stripe para email: ${email} | priceId: ${priceId}`);
 
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price: 'price_1Rf7OwEYgEICatRxBTqnJdR9',
+          price: priceId,
           quantity: 1,
         },
       ],
@@ -48,9 +54,10 @@ app.post('/create-checkout-session', async (req, res) => {
       metadata: { email },
     });
 
+    console.log("✅ Sessão criada com sucesso:", session.url);
     res.json({ url: session.url });
   } catch (error) {
-    console.log(error);
+    console.error("❌ Erro ao criar sessão Stripe:", error);
     res.status(500).send('Erro ao criar sessão');
   }
 });
@@ -63,7 +70,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (req, res) =>
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err) {
-    console.log('Webhook signature verification failed.', err.message);
+    console.error('❌ Webhook signature verification failed.', err.message);
     return res.sendStatus(400);
   }
 
@@ -72,7 +79,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (req, res) =>
     const email = session.metadata.email;
     const amountTotal = session.amount_total;
 
-    console.log(`Pagamento confirmado para ${email}, valor: ${amountTotal}`);
+    console.log(`💳 Pagamento confirmado para ${email}, valor: ${amountTotal}`);
 
     // ✅ Fetch para Wix para somar créditos
     fetch("https://www.consulteseufuturo.com.br/_functions/somarCreditoStripe", {
