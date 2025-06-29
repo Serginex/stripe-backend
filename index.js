@@ -1,3 +1,4 @@
+const cors = require('cors');
 const express = require('express');
 const app = express();
 const stripe = require('stripe')(process.env.SECRET_KEY_STRIPE);
