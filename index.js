@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
 app.post('/create-checkout-session', async (req, res) => {
   const { email, priceId } = req.body;
 
-  console.log("Usando priceId fixo: price_1Reyg8EYgElCatRxeizbSN2a");
+  console.log("Usando priceId fixo: price_1Rf7OwEYgEICatRxBTqnJdR9");
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -58,8 +58,23 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), (req, res) =>
 
     console.log(`Pagamento confirmado para ${email}, valor: ${amountTotal}`);
 
-    // Aqui você deve implementar o fetch para seu backend Wix
-    // para somar os créditos ao usuário com o email recebido.
+    // ✅ Fetch para Wix para somar créditos
+    fetch("https://www.consulteseufuturo.com/_functions/somarCreditoStripe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: email,
+        valor: amountTotal,
+        paymentId: session.id
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("✅ Retorno do Wix:", data);
+      })
+      .catch(err => {
+        console.error("❌ Erro ao enviar para Wix:", err);
+      });
   }
 
   res.status(200).send();
